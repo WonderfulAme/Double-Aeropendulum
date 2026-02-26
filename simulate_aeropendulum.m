@@ -6,7 +6,8 @@ d  = params.d;
 
 %% Solve the model as a simple and ordinary differential equation based on an explicit Runge-Kutta (4,5)
 [t, sol] = ode45(@(t,x) dynamics_fun(t,x,params,thrust_fun), tspan, x0);
-theta = mod(sol(:,1),2*pi);
+theta = mod(sol(:,1) + pi, 2*pi) - pi;
+
 theta_dot = sol(:,2);
 
 %% Create an animated figure to see the behavior
@@ -19,7 +20,7 @@ axis([-0.6 0.6 -0.6 0.6])
 grid on
 xlabel('X (m)')
 ylabel('Y (m)')
-title('Double Rotor Aeropendulum')
+title('Aeropéndulo de Doble Rotor')
 hold on
 
 % Color some things
@@ -39,17 +40,20 @@ label_T2 = text(0.95, 0.90, '$T_2$', ...
     'HorizontalAlignment','right','VerticalAlignment','top',...
     'Color','g','Interpreter','latex');
 
-% ---- Angle theta plot ----
+% ---- Angle theta pl   ot ----
 subplot(1,2,2)
 grid on
-xlabel('Time (s)')
-ylabel('\theta (rad)')
-title('Angle Evolution')
+xlabel('Tiempo (s)')
+ylabel({'\theta (rad)';''})
+title('Evolución Angular')
 hold on
 angle_line = animatedline('Color','b','LineWidth',2);
-current_point = plot(0,0,'ro','MarkerSize',8);
-ylim([0 2*pi])
+ylim([-pi pi])
 xlim([tspan(1) tspan(end)])
+
+
+set(findall(gcf,'Type','axes'),'FontSize',12)
+
 
 %% Animation loop
 for k = 1:length(t)
@@ -76,11 +80,8 @@ for k = 1:length(t)
     scale = 0.05;
     perp = th + pi/2;
 
-    quiver(x1,y1,scale*T1*cos(perp),scale*T1*sin(perp),0,'r','LineWidth',1.5);
-    quiver(x2,y2,scale*T2*cos(perp),scale*T2*sin(perp),0,'g','LineWidth',1.5);
 
     addpoints(angle_line,t(k),th);
-    set(current_point,'XData',t(k),'YData',th);
 
     drawnow
     pause(0.02)
